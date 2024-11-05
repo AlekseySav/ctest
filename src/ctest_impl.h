@@ -2,7 +2,7 @@
 
 #include <stddef.h>
 
-#include "test.h"
+#include "ctest.h"
 
 struct test {
     const char* suite;

@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 #include "ctest_impl.h"
-#include "test.h"
 
 void _ctest_reg(void (*fn)(void), const char* suite, const char* name, ...) {
     va_list ap;
