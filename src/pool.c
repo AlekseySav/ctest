@@ -51,7 +51,7 @@ static struct suite_impl* find_suite(const char* name) {
 }
 
 void _ctest_add(struct test t) {
-    struct suite_impl* s = find_suite(t.name);
+    struct suite_impl* s = find_suite(t.suite);
     add_test(s, t);
 }
 

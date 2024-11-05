@@ -43,17 +43,22 @@ void _ctest_timeout(int timeout) {
 void ctest_run(void) {
     struct suite s;
     for (suite_iter it = 0; (s = _ctest_suite_iter(&it)).name;) {
-        int failed = 0;
+        int total = 0, failed = 0;
         print("running test suite \e[36m%s\e[0m...\n", s.name);
         for (struct test* t = s.iterator; t->name; t++) {
+            total++;
             _ctest_exec(t);
             if (t->exit_code != 0) {
                 print("Test \e[36m%s:%s \e[31;1mfailed\e[0m with %#x\n",
                       t->suite, t->name, t->exit_code);
-                failed = 1;
+                failed++;
             }
         }
-        print(failed ? "\e[31;1mFAILED\e[0m\n\n" : "\e[32;1mOK\e[0m\n\n");
+        if (failed) {
+            print("\e[31;1mFAILED %d/%d\e[0m\n\n", failed, total);
+        } else {
+            print("\e[32;1mOK %d/%d\e[0m\n\n", total, total);
+        }
         _ctest_stop(s);
     }
 
