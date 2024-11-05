@@ -35,8 +35,8 @@ void _ctest_exec(struct test* t) {
     waitpid(worker_pid, &t->exit_code, 0);
 }
 
-void _ctest_stop(void) {
-    for (struct test* t = _ctest_test_iter(); t->name; t++) {
+void _ctest_stop(struct suite s) {
+    for (struct test* t = s.iterator; t->name; t++) {
         kill(t->waiter_pid, SIGTERM);
     }
 }

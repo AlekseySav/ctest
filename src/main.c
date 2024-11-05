@@ -32,24 +32,46 @@ void _ctest_reg(void (*fn)(void), const char* suite, const char* name, ...) {
 #define print(...) fprintf(stderr, __VA_ARGS__)
 
 void _ctest_fail(const char* expr, const char* file, int line) {
-    print("\e[031;1mAssertion failed: \e[0m%s:%d: (%s)\n", file, line, expr);
+    print("\e[31;1mAssertion failed: \e[0m%s:%d: (%s)\n", file, line, expr);
     abort();
 }
 
 void _ctest_timeout(int timeout) {
-    print("\e[031;1mTest failed with timeout (%d seconds)\e[0m\n", timeout);
+    print("\e[31;1mTest failed with timeout (%d seconds)\e[0m\n", timeout);
 }
 
 void ctest_run(void) {
-    for (struct test* t = _ctest_test_iter(); t->name; t++) {
-        print("Running test %s:%s\n", t->suite, t->name);
-        _ctest_exec(t);
-        if (t->exit_code != 0) {
-            print("\e[031;1mTest %s:%s failed with code %#x\e[0m\n", t->suite,
-                  t->name, t->exit_code);
+    struct suite s;
+    for (suite_iter it = 0; (s = _ctest_suite_iter(&it)).name;) {
+        int failed = 0;
+        print("running test suite \e[36m%s\e[0m...\n", s.name);
+        for (struct test* t = s.iterator; t->name; t++) {
+            _ctest_exec(t);
+            if (t->exit_code != 0) {
+                print("Test \e[36m%s:%s \e[31;1mfailed\e[0m with %#x\n",
+                      t->suite, t->name, t->exit_code);
+                failed = 1;
+            }
+        }
+        print(failed ? "\e[31;1mFAILED\e[0m\n\n" : "\e[32;1mOK\e[0m\n\n");
+        _ctest_stop(s);
+    }
+
+    int n_suites = 0, n_suites_failed = 0;
+    for (suite_iter it = 0; (s = _ctest_suite_iter(&it)).name;) {
+        n_suites++;
+        for (struct test* t = s.iterator; t->name; t++) {
+            if (t->exit_code) {
+                n_suites_failed++;
+                break;
+            }
         }
     }
-    _ctest_stop();
+    if (n_suites_failed) {
+        print("\e[31;1m%d/%d FAILED\e[0m\n", n_suites_failed, n_suites);
+    } else {
+        print("\e[32;1m%d/%d PASSED\e[0m\n", n_suites, n_suites);
+    }
 }
 
 int main(int argc, char** argv) {

@@ -13,19 +13,26 @@ struct test {
     int waiter_pid;
 };
 
+struct suite {
+    const char* name;
+    struct test* iterator;
+};
+
+typedef int suite_iter;
+
 /*
  * test pool
  */
 
 void _ctest_add(struct test t);
-struct test* _ctest_test_iter(void);
+struct suite _ctest_suite_iter(suite_iter* it);
 
 /*
  * test executor
  */
 
 void _ctest_exec(struct test* t);
-void _ctest_stop(void);
+void _ctest_stop(struct suite s);
 
 /*
  * ctest
